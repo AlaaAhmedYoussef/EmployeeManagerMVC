@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
+using EmployeeManagerMVC.Security;
 
 namespace EmployeeManagerMVC
 {
@@ -28,7 +29,21 @@ namespace EmployeeManagerMVC
         {
             services.AddControllersWithViews();
             services.AddDbContextPool<AppDbContext>(options => 
+                 options.UseSqlServer(configuration.GetConnectionString("AppDb")));
+             
+
+            services.AddDbContextPool<AppIdentityDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("AppDb")));
+
+            services.AddIdentity<AppIdentityUser, AppIdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>();
+
+            //by default 
+            services.ConfigureApplicationCookie(opt =>
+            {
+                opt.LoginPath = "/Security/SignIn";
+                opt.AccessDeniedPath = "/Security/AccessDenied";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,9 +54,15 @@ namespace EmployeeManagerMVC
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
+           
 
             app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {

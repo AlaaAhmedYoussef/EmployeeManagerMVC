@@ -3,9 +3,12 @@ using EmployeeManagerMVC.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeManagerMVC.Controllers
 {
+    [Authorize(Roles = "Manager")]
+    [AutoValidateAntiforgeryToken]
     public class EmployeeManagerController : Controller
     {
         private readonly AppDbContext db;
@@ -86,6 +89,13 @@ namespace EmployeeManagerMVC.Controllers
             return RedirectToAction("List");
         }
 
+        /*
+       [AllowAnonymous]
+       public IActionResult Help()
+       {
+         }
+         */
+
         private void FillCountries()
         {
             List<SelectListItem> countries =
@@ -99,4 +109,7 @@ namespace EmployeeManagerMVC.Controllers
             ViewBag.Countries = countries;
         }
     }
+
+   
 }
+
